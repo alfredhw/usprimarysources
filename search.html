@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search &mdash; AmeriDocs</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="nav.js" defer></script>
+  <script src="related.js" defer></script>
+</head>
+<body>
+
+<header>
+  <h1>AmeriDocs</h1>
+  <div class="subtitle">Online Sources for United States History</div>
+</header>
+
+<nav>
+  <a href="index.html">Home</a> <span class="sep">&rsaquo;</span> <strong>Search the Directory</strong>
+</nav>
+
+<div class="search-panel">
+  <input type="search" id="q" class="search-input" placeholder="Search 2,600+ primary source collections&hellip; (e.g., suffrage, railroad, Cherokee, oral history)" autofocus autocomplete="off">
+  <div class="search-filters" id="filters">
+    <button class="filter-chip active" data-cat="all">All</button>
+    <button class="filter-chip" data-cat="state">States</button>
+    <button class="filter-chip" data-cat="territory">Territories</button>
+    <button class="filter-chip" data-cat="region">Regions</button>
+    <button class="filter-chip" data-cat="theme">Themes</button>
+    <button class="filter-chip" data-cat="era">Eras</button>
+    <button class="filter-chip" data-cat="federal">Federal</button>
+  </div>
+  <div class="search-meta" id="meta"></div>
+</div>
+
+<div id="results"></div>
+
+<div class="note" id="tips">
+  <strong>Search tips.</strong> Every collection in the directory is indexed by title, description, and topic. Try a subject (<em>whaling</em>, <em>suffrage</em>, <em>internment</em>), a document type (<em>diaries</em>, <em>newspapers</em>, <em>oral history</em>), a person (<em>Lincoln</em>, <em>Chavez</em>), or an institution (<em>Newberry</em>, <em>Bancroft</em>). Use the filters above to narrow by page type. Multiple words narrow the search &mdash; all terms must match.
+</div>
+
+<footer>
+  <p><a href="index.html">&larr; Back to main page</a></p>
+</footer>
+
+<script src="sources.js"></script>
+<script>
+(function () {
+  const input = document.getElementById('q');
+  const resultsEl = document.getElementById('results');
+  const metaEl = document.getElementById('meta');
+  const tipsEl = document.getElementById('tips');
+  const filterEl = document.getElementById('filters');
+  let activeCat = 'all';
+  let shown = 0;
+  const PAGE = 50;
+
+  const CAT_LABEL = { state: 'State', territory: 'Territory', region: 'Region', theme: 'Theme', era: 'Era', federal: 'Federal' };
+
+  function esc(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function highlight(text, terms) {
+    let out = esc(text);
+    terms.forEach(t => {
+      if (t.length < 2) return;
+      const re = new RegExp('(' + t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'ig');
+      out = out.replace(re, '<mark>$1</mark>');
+    });
+    return out;
+  }
+
+  function score(e, terms) {
+    let s = 0;
+    const title = e.t.toLowerCase(), desc = e.d.toLowerCase(),
+          sect = e.x.toLowerCase(), page = e.p.toLowerCase();
+    for (const t of terms) {
+      let hit = 0;
+      if (title.includes(t)) hit += 10;
+      if (sect.includes(t)) hit += 5;
+      if (page.includes(t)) hit += 4;
+      if (desc.includes(t)) hit += 2;
+      if (hit === 0) return -1; // all terms must match somewhere
+      s += hit;
+    }
+    return s;
+  }
+
+  function run(reset) {
+    if (reset) shown = 0;
+    const qRaw = input.value.trim();
+    const terms = qRaw.toLowerCase().split(/\s+/).filter(Boolean);
+    let pool = AMERIDOCS_SOURCES;
+    if (activeCat !== 'all') pool = pool.filter(e => e.c === activeCat);
+
+    let matches;
+    if (terms.length === 0) {
+      matches = activeCat === 'all' ? [] : pool;
+      tipsEl.style.display = activeCat === 'all' ? '' : 'none';
+      if (activeCat === 'all') {
+        metaEl.textContent = AMERIDOCS_SOURCES.length.toLocaleString() +
+          ' collections indexed across ' + new Set(AMERIDOCS_SOURCES.map(e => e.s)).size + ' pages.';
+        resultsEl.innerHTML = '';
+        return;
+      }
+    } else {
+      matches = pool.map(e => [score(e, terms), e]).filter(x => x[0] > 0)
+                    .sort((a, b) => b[0] - a[0]).map(x => x[1]);
+      tipsEl.style.display = 'none';
+    }
+
+    metaEl.textContent = matches.length.toLocaleString() + ' collection' +
+      (matches.length === 1 ? '' : 's') + (qRaw ? ' matching “' + qRaw + '”' : '') +
+      (activeCat !== 'all' ? ' in ' + CAT_LABEL[activeCat].toLowerCase() + ' pages' : '') + '.';
+
+    shown = Math.max(shown, Math.min(PAGE, matches.length));
+    const slice = matches.slice(0, shown);
+    let html = slice.map(e =>
+      '<div class="result">' +
+        '<a class="result-title" href="' + esc(e.u) + '" target="_blank" rel="noopener">' +
+          highlight(e.t, terms) + '</a>' +
+        '<span class="result-crumb"><a href="' + esc(e.s) + '.html">' + esc(e.p) + '</a>' +
+          (e.x ? ' <span class="sep">&rsaquo;</span> ' + esc(e.x) : '') +
+          ' <span class="result-cat cat-' + e.c + '">' + CAT_LABEL[e.c] + '</span></span>' +
+        (e.d ? '<span class="result-desc">' + highlight(e.d, terms) + '</span>' : '') +
+      '</div>').join('');
+    if (matches.length > shown) {
+      html += '<div class="more-wrap"><button id="more" class="filter-chip">Show ' +
+        Math.min(PAGE, matches.length - shown) + ' more (' + (matches.length - shown) + ' remaining)</button></div>';
+    }
+    resultsEl.innerHTML = html;
+    const more = document.getElementById('more');
+    if (more) more.addEventListener('click', () => { shown += PAGE; run(false); });
+  }
+
+  filterEl.addEventListener('click', (ev) => {
+    const btn = ev.target.closest('.filter-chip');
+    if (!btn) return;
+    filterEl.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeCat = btn.dataset.cat;
+    run(true);
+  });
+
+  let debounce;
+  input.addEventListener('input', () => {
+    clearTimeout(debounce);
+    debounce = setTimeout(() => run(true), 120);
+  });
+
+  // support ?q= from the homepage search box
+  const params = new URLSearchParams(location.search);
+  if (params.get('q')) input.value = params.get('q');
+  run(true);
+})();
+</script>
+
+</body>
+</html>
