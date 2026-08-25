@@ -20,7 +20,7 @@
 </nav>
 
 <div class="search-panel">
-  <input type="search" id="q" class="search-input" placeholder="Search 2,600+ primary source collections&hellip; (e.g., suffrage, railroad, Cherokee, oral history)" autofocus autocomplete="off">
+  <input type="search" id="q" class="search-input" placeholder="Search 2,700+ primary source collections&hellip; (e.g., suffrage, railroad, Cherokee, oral history)" autofocus autocomplete="off">
   <div class="search-filters" id="filters">
     <button class="filter-chip active" data-cat="all">All</button>
     <button class="filter-chip" data-cat="state">States</button>
@@ -28,6 +28,7 @@
     <button class="filter-chip" data-cat="region">Regions</button>
     <button class="filter-chip" data-cat="theme">Themes</button>
     <button class="filter-chip" data-cat="era">Eras</button>
+    <button class="filter-chip" data-cat="form">By Form</button>
     <button class="filter-chip" data-cat="federal">Federal</button>
   </div>
   <div class="search-meta" id="meta"></div>
@@ -55,7 +56,7 @@
   let shown = 0;
   const PAGE = 50;
 
-  const CAT_LABEL = { state: 'State', territory: 'Territory', region: 'Region', theme: 'Theme', era: 'Era', federal: 'Federal' };
+  const CAT_LABEL = { state: 'State', territory: 'Territory', region: 'Region', theme: 'Theme', era: 'Era', form: 'Form', federal: 'Federal' };
 
   function esc(s) {
     return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
