@@ -3,7 +3,7 @@
 import json, os, re
 from bs4 import BeautifulSoup
 
-SITE = "/sessions/cool-nifty-allen/mnt/outputs/americandocs"
+SITE = "/sessions/cool-nifty-allen/mnt/americandocs"
 
 STATES = sorted([
     "alabama","alaska","arizona","arkansas","california","colorado","connecticut","delaware",
@@ -21,7 +21,8 @@ REGIONS = ["new-england","mid-atlantic","southeast","midwest","great-plains","mo
 # homepage listing order
 THEMES = ["immigration","native-nations","slavery-abolition","westward-expansion","labor",
           "womens-history","military","economic-history","religious-history","gender-sexuality",
-          "foodways","entertainment-sports","hispanic-latino","asian-american","us-latin-america"]
+          "foodways","entertainment-sports","hispanic-latino","asian-american","us-latin-america",
+          "african-american","environment-conservation","science-technology"]
 # chronological order
 ERAS = ["colonial","revolution-early-republic","antebellum","civil-war-reconstruction",
         "gilded-age-progressive","depression-world-wars","cold-war","recent-america"]

@@ -4,7 +4,7 @@ import json, math, os, re
 from collections import Counter, defaultdict
 from bs4 import BeautifulSoup
 
-SITE = "/sessions/cool-nifty-allen/mnt/outputs/americandocs"
+SITE = "/sessions/cool-nifty-allen/mnt/americandocs"
 
 REGION_STATES = {
     "new-england":   ["connecticut","massachusetts","maine","new-hampshire","rhode-island","vermont"],
@@ -22,7 +22,8 @@ assert len(STATE_REGION) == 50
 
 THEMES = {"immigration","native-nations","slavery-abolition","westward-expansion","labor",
           "womens-history","military","economic-history","religious-history","gender-sexuality",
-          "foodways","entertainment-sports","hispanic-latino","asian-american","us-latin-america"}
+          "foodways","entertainment-sports","hispanic-latino","asian-american","us-latin-america",
+          "african-american","environment-conservation","science-technology"}
 TERRITORIES = {"american-samoa","district-of-columbia","guam","northern-mariana-islands",
                "puerto-rico","us-virgin-islands"}
 ERAS = {"colonial","revolution-early-republic","antebellum","civil-war-reconstruction",

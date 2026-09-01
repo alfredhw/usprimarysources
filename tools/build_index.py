@@ -3,7 +3,7 @@
 import json, os, re
 from bs4 import BeautifulSoup
 
-SITE = "/sessions/cool-nifty-allen/mnt/outputs/americandocs"
+SITE = "/sessions/cool-nifty-allen/mnt/americandocs"
 
 STATES = {
     "alabama","alaska","arizona","arkansas","california","colorado","connecticut","delaware",
